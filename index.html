@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Krish Hariharan</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #202122;
+      --muted: #54595d;
+      --link: #0645ad;
+      --link-hover: #3366cc;
+      --border: #a2a9b1;
+      --panel: #f8f9fa;
+      --panel-alt: #efefef;
+      --row-border: #e5e5e5;
+      --active: #3366cc;
+      --body-size: 1.0625rem;
+      --container-width: 1280px;
+      --toc-width: 150px;
+      --info-width: 300px;
+      --gutter: 8px;
+      --body-font: BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      --ui-font: BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      --heading-font: Georgia, "Times New Roman", serif;
+    }
+
+    html[data-theme="dark"] {
+      --bg: #1a1a1b;
+      --text: #e4e4e4;
+      --muted: #b0b3b8;
+      --link: #3366cc;
+      --link-hover: #5c8df6;
+      --border: #404040;
+      --panel: #2c2c2d;
+      --panel-alt: #38383a;
+      --row-border: #404040;
+      --active: #5c8df6;
+    }
+
+    html[data-text-size="small"] { --body-size: 0.9375rem; }
+    html[data-text-size="standard"] { --body-size: 1.0625rem; }
+    html[data-text-size="large"] { --body-size: 1.1875rem; }
+    html[data-width="standard"] { --container-width: 1280px; }
+    html[data-width="wide"] { --container-width: 1500px; }
+
+    html {
+      scroll-behavior: smooth;
+      color-scheme: light;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+    }
+
+    body {
+      margin: 0;
+      padding: 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body-font);
+      font-size: var(--body-size);
+      font-weight: 400;
+      line-height: 1.6;
+      transition: background-color 0.3s ease, color 0.3s ease, font-size 0.2s ease-in-out;
+    }
+
+    a {
+      color: var(--link);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--link-hover);
+      text-decoration: underline;
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--active);
+      outline-offset: 2px;
+    }
+
+    .page {
+      max-width: var(--container-width);
+      margin: 0 auto;
+    }
+
+    .header {
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+    }
+
+    .header__title {
+      font-family: var(--heading-font);
+      font-size: 2.0em;
+      font-weight: 500;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .header__subtitle {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 1.0em;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+      margin-top: 12px;
+      font-size: 14px;
+      font-family: var(--ui-font);
+    }
+
+    .toolbar__group {
+      display: flex;
+      align-items: end;
+      gap: 2px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      flex-wrap: wrap;
+    }
+
+    .toolbar__group a {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px 7px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .toolbar__group a.active {
+      border-bottom: 2px solid var(--text);
+      font-weight: 600;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: var(--toc-width) minmax(0, 1fr) var(--info-width);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .sticky {
+      position: sticky;
+      top: 20px;
+    }
+
+    .toc,
+    .infobox,
+    .appearance {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0;
+    }
+
+    .toc {
+      padding: 16px 12px;
+      font-family: var(--ui-font);
+    }
+
+    .toc__header,
+    .appearance__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 0 12px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .toggle-btn {
+      background: transparent;
+      border: 0;
+      color: var(--link);
+      font: inherit;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .toc nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .toc nav li {
+      margin: 6px 0;
+      font-size: 14px;
+    }
+
+    .toc nav a.active {
+      font-weight: 700;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .section {
+      padding: 10px 0 8px;
+    }
+
+    .section h2 {
+      font-family: var(--heading-font);
+      font-size: 1.55em;
+      font-weight: 500;
+      margin: 0 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .edit-link {
+      font-family: var(--ui-font);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .section p {
+      margin: 0 0 0.8em;
+      font-size: 1.0em;
+      font-weight: 400;
+    }
+
+    .references {
+      color: var(--link);
+      white-space: nowrap;
+      font-size: 0.95em;
+    }
+
+    .skill-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding-left: 20px;
+      font-family: var(--body-font);
+    }
+
+    .skill-group {
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+
+    .skill-group strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .projects-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      table-layout: fixed;
+    }
+
+    .projects-table col:nth-child(1) { width: 13%; }
+    .projects-table col:nth-child(2) { width: 22%; }
+    .projects-table col:nth-child(3) { width: 17%; }
+    .projects-table col:nth-child(4) { width: 34%; }
+    .projects-table col:nth-child(5) { width: 14%; }
+
+    .projects-table th,
+    .projects-table td {
+      border-bottom: 1px solid var(--row-border);
+      padding: 10px 12px;
+      font-size: 14px;
+      vertical-align: top;
+      text-align: left;
+      word-break: break-word;
+      font-weight: 500;
+    }
+
+    .projects-table th {
+      background: var(--panel-alt);
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .project-name {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .project-preview {
+      margin: 0;
+    }
+
+    .project-preview img {
+      display: block;
+      width: 100%;
+      max-width: 280px;
+      height: auto;
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .project-preview figcaption {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .infobox {
+      width: 100%;
+      max-width: 300px;
+      padding: 12px;
+      font-family: var(--body-font);
+    }
+
+    .infobox__title {
+      margin: 0 0 8px;
+      font-size: 1.1em;
+      font-weight: 500;
+      color: var(--text);
+      text-align: center;
+    }
+
+    .infobox img {
+      width: 100%;
+      max-width: 230px;
+      height: auto;
+      display: block;
+      border: 1px solid var(--border);
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: 8px;
+    }
+
+    .infobox__row {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      padding: 3px 0;
+    }
+
+    .infobox__label {
+      display: block;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .infobox__value {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .appearance {
+      margin-top: 0;
+      width: 100%;
+      max-width: 300px;
+      padding: 12px;
+      font-family: var(--body-font);
+    }
+
+    .appearance__group {
+      margin: 12px 0;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--row-border);
+    }
+
+    .appearance__label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .radio-list {
+      display: grid;
+      gap: 4px;
+    }
+
+    .radio-list label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    input[type="radio"] {
+      accent-color: var(--link);
+    }
+
+    .toc-collapsed nav,
+    .appearance-collapsed .appearance__body {
+      display: none;
+    }
+
+    .right-column .sticky {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .right-column .appearance {
+      max-width: none;
+    }
+
+    .right-column .infobox {
+      max-width: none;
+    }
+
+    .skill-list {
+      display: grid;
+      gap: 6px;
+      list-style: disc;
+      margin: 0;
+      padding-left: 20px;
+      font-family: var(--ui-font);
+    }
+
+    .skill-group {
+      padding: 0;
+      background: transparent;
+      border: 0;
+    }
+
+    .skill-group strong {
+      display: inline;
+      margin-bottom: 0;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .skill-group strong::after {
+      content: ": ";
+      font-weight: 400;
+    }
+
+    @media (max-width: 1200px) {
+      .layout {
+        grid-template-columns: var(--toc-width) minmax(0, 1fr);
+        gap: 8px;
+      }
+
+      .right-column {
+        grid-column: 1 / -1;
+      }
+
+      .infobox,
+      .appearance {
+        max-width: none;
+      }
+
+      .right-column .sticky {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 8px;
+      }
+
+      .toolbar {
+        display: grid;
+        gap: 8px;
+      }
+
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .left-column,
+      .right-column {
+        grid-column: 1;
+      }
+
+      .toc,
+      .infobox,
+      .appearance {
+        position: static;
+        max-width: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page" id="top">
+    <header class="header">
+      <h1 class="header__title">Krish Hariharan</h1>
+      <p class="header__subtitle">From Wikipedia, the free encyclopedia</p>
+      <nav class="toolbar" aria-label="Page tabs">
+        <ul class="toolbar__group">
+          <li><a href="#top">Article</a></li>
+          <li><a href="#top">Talk</a></li>
+        </ul>
+        <ul class="toolbar__group">
+          <li><a class="active" href="#top">Read</a></li>
+          <li><a href="#top">Edit</a></li>
+          <li><a href="#top">View history</a></li>
+          <li><a href="#top">Tools</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="layout">
+      <aside class="left-column">
+        <div class="toc sticky" id="toc-panel">
+          <div class="toc__header">
+            <span>Contents</span>
+            <button type="button" class="toggle-btn" id="toc-toggle" aria-expanded="true">hide</button>
+          </div>
+          <nav aria-label="Contents">
+            <ul>
+              <li><a href="#top">(Top)</a></li>
+              <li><a href="#about-me">About Me</a></li>
+              <li><a href="#education">Education</a></li>
+              <li><a href="#skills">Skills</a></li>
+              <li><a href="#projects">Projects</a></li>
+              <li><a href="#hobbies">Hobbies and Interests</a></li>
+              <li><a href="#contacts">Contacts and Links</a></li>
+            </ul>
+          </nav>
+        </div>
+      </aside>
+
+      <main>
+        <section class="section" id="about-me" data-section>
+          <h2>About Me <a class="edit-link" href="#top">[edit]</a></h2>
+          <p>I'm Krish Hariharan, a pre-final-year CSE student specializing in IoT at Shiv Nadar University Chennai. I'm someone who's always curious to learn new things, especially languages—both the ones humans speak and the ones computers understand. I enjoy web design and have a keen interest in machine learning and deep learning. Outside of tech, you'll usually find me listening to music or painting. From being a House Captain in school to a Class Representative in college, I've always enjoyed connecting with people and taking on new responsibilities.<span class="references">[1]</span></p>
+        </section>
+
+        <section class="section" id="education" data-section>
+          <h2>Education <a class="edit-link" href="#top">[edit]</a></h2>
+          <p>I completed my schooling at Chinmaya Vidyalaya Taylors Road, where I pursued Mathematics with Computer Science in my higher secondary years. I am currently pursuing a Bachelor of Technology in Computer Science and Engineering with a specialization in Internet of Things (IoT) at Shiv Nadar University Chennai.<span class="references">[2]</span></p>
+        </section>
+
+        <section class="section" id="skills" data-section>
+          <h2>Skills <a class="edit-link" href="#top">[edit]</a></h2>
+          <ul class="skill-list">
+            <li class="skill-group"><strong>Programming Languages</strong><span>Python, Java, C, JavaScript</span></li>
+            <li class="skill-group"><strong>Web Development</strong><span>HTML, CSS, Tailwind CSS, React.js, Node.js, Express.js</span></li>
+            <li class="skill-group"><strong>Frameworks &amp; Libraries (Python)</strong><span>Flask, NumPy, Pandas, Matplotlib, Scikit-Learn</span></li>
+            <li class="skill-group"><strong>AI/ML</strong><span>Machine Learning, Deep Learning, Model Training</span></li>
+            <li class="skill-group"><strong>Tools &amp; Databases</strong><span>Git, GitHub, Firebase, MySQL, MongoDB</span></li>
+            <li class="skill-group"><strong>Relevant Coursework</strong><span>Data Structures and Algorithms, Software Engineering Practices, Object-Oriented Programming, Computer Networks</span></li>
+          </ul>
+        </section>
+
+        <section class="section" id="projects" data-section>
+          <h2>Projects <a class="edit-link" href="#top">[edit]</a></h2>
+          <div class="table-wrap">
+            <table class="projects-table">
+              <colgroup>
+                <col />
+                <col />
+                <col />
+                <col />
+                <col />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>Preview</th>
+                  <th>Tech Stack</th>
+                  <th>Description</th>
+                  <th>Repository</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="project-name">Gradely</span></td>
+                  <td>
+                    <figure class="project-preview">
+                      <img src="./portfoliopics/gradely.png" alt="Gradely - Screenshot" loading="lazy" />
+                      <figcaption>Academic grade management and prediction</figcaption>
+                    </figure>
+                  </td>
+                  <td>React, Tailwind CSS, Node.js, Express.js, MySQL</td>
+                  <td>Full-stack academic grade management platform for tracking SGPA and CGPA with real-time calculations. Includes expected grade prediction and target end-semester mark estimation based on SNUC's B.Tech curriculum.</td>
+                  <td><a href="https://github.com/krishhariharan18/Gradely" target="_blank" rel="noreferrer">github.com/krishhariharan18/Gradely</a></td>
+                </tr>
+                <tr>
+                  <td><span class="project-name">Spendora</span></td>
+                  <td>
+                    <figure class="project-preview">
+                      <img src="./portfoliopics/spendora.png" alt="Spendora - Screenshot" loading="lazy" />
+                      <figcaption>Finance analytics and spending forecast platform</figcaption>
+                    </figure>
+                  </td>
+                  <td>React, Tailwind CSS, Flask, SQLAlchemy, MySQL, SQLite, Scikit-Learn</td>
+                  <td>Intelligent personal finance platform with expense tracking, analytics dashboards, and spending forecasts. Uses machine learning to automate expense categorization and generate actionable financial insights.</td>
+                  <td><a href="https://github.com/krishhariharan18/Spendora" target="_blank" rel="noreferrer">github.com/krishhariharan18/Spendora</a></td>
+                </tr>
+                <tr>
+                  <td><span class="project-name">EduTor</span></td>
+                  <td>
+                    <figure class="project-preview">
+                      <img src="./portfoliopics/edutor.png" alt="EduTor - Screenshot" loading="lazy" />
+                      <figcaption>Role-based learning management system</figcaption>
+                    </figure>
+                  </td>
+                  <td>Flask, MongoDB, Python, Tailwind CSS</td>
+                  <td>Role-based Learning Management System supporting Admin, Faculty, and Student workflows. Features course management, assignments, attendance tracking, grading, and academic analytics dashboards.</td>
+                  <td><a href="https://github.com/krishhariharan18/EduTor" target="_blank" rel="noreferrer">github.com/krishhariharan18/EduTor</a></td>
+                </tr>
+                <tr>
+                  <td><span class="project-name">CareerLens</span></td>
+                  <td>
+                    <figure class="project-preview">
+                      <img src="./portfoliopics/careerlens.png" alt="CareerLens - Screenshot" loading="lazy" />
+                      <figcaption>AI resume scoring and role matching</figcaption>
+                    </figure>
+                  </td>
+                  <td>React, Flask, Scikit-Learn, MySQL, Python</td>
+                  <td>AI-powered resume analysis platform for resume scoring, role matching, and skill gap identification. Generates personalized insights and exportable reports to help users improve job readiness.</td>
+                  <td><a href="https://github.com/krishhariharan18/CareerLens" target="_blank" rel="noreferrer">github.com/krishhariharan18/CareerLens</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section" id="hobbies" data-section>
+          <h2>Hobbies and Interests <a class="edit-link" href="#top">[edit]</a></h2>
+          <p>When I'm not coding, you'll probably find me listening to music (sometimes so much that I could practically go deaf 😆).<span class="references">[3]</span> I enjoy painting as a creative outlet and love exploring different forms of art. Being a foodie, I also enjoy cooking; it's my way of satisfying both my curiosity and my appetite. I naturally enjoy multitasking and keeping myself engaged with multiple activities at once. Like many others, I have a talent for accidentally turning a quick Instagram Reel break into a full-fledged doomscrolling session 😅.<span class="references">[4]</span></p>
+        </section>
+
+        <section class="section" id="contacts" data-section>
+          <h2>Contacts and Links <a class="edit-link" href="#top">[edit]</a></h2>
+          <p>I'm always open to connecting with people—whether you share an interest in technology, innovation, or simply enjoy a good conversation. If you'd like to discuss projects, collaborate on ideas, or just get in touch, feel free to reach out through my socials:<span class="references">[5]</span></p>
+          <p>Email: <a href="mailto:krishchn.18@gmail.com">krishchn.18@gmail.com</a><br />
+          LinkedIn: <a href="https://www.linkedin.com/in/krish-hariharan-aa1b28334/" target="_blank" rel="noreferrer">https://www.linkedin.com/in/krish-hariharan-aa1b28334/</a><br />
+          GitHub: <a href="https://github.com/krishhariharan18" target="_blank" rel="noreferrer">https://github.com/krishhariharan18</a></p>
+          <p>Do check out my projects, experiments, and technical explorations on GitHub.<span class="references">[6]</span></p>
+        </section>
+      </main>
+
+      <aside class="right-column">
+        <div class="sticky">
+          <section class="infobox" aria-label="Personal information">
+            <div class="infobox__title">Krish Hariharan</div>
+            <img src="./portfoliopics/krishhariharan.jpeg" alt="Krish Hariharan" />
+            <div class="infobox__row"><span class="infobox__label">Born</span><span class="infobox__value">18 August 2006 (age 19)</span></div>
+            <div class="infobox__row"><span class="infobox__label">Location</span><span class="infobox__value">Chennai, Tamil Nadu, India</span></div>
+            <div class="infobox__row"><span class="infobox__label">Education</span><span class="infobox__value">B.Tech CSE (IoT), Shiv Nadar University Chennai</span></div>
+            <div class="infobox__row"><span class="infobox__label">Status</span><span class="infobox__value">Pre-Final Year Student</span></div>
+            <div class="infobox__row"><span class="infobox__label">Years active</span><span class="infobox__value">2024–present</span></div>
+            <div class="infobox__row"><span class="infobox__label">Email</span><span class="infobox__value"><a href="mailto:krishchn.18@gmail.com">krishchn.18@gmail.com</a></span></div>
+            <div class="infobox__row"><span class="infobox__label">LinkedIn</span><span class="infobox__value"><a href="https://www.linkedin.com/in/krish-hariharan-aa1b28334/" target="_blank" rel="noreferrer">Profile</a></span></div>
+            <div class="infobox__row"><span class="infobox__label">GitHub</span><span class="infobox__value"><a href="https://github.com/krishhariharan18" target="_blank" rel="noreferrer">krishhariharan18</a></span></div>
+          </section>
+
+          <section class="appearance" id="appearance-panel" aria-label="Appearance settings">
+            <div class="appearance__header">
+              <span>Appearance</span>
+              <button type="button" class="toggle-btn" id="appearance-toggle" aria-expanded="true">hide</button>
+            </div>
+            <div class="appearance__body">
+              <div class="appearance__group">
+                <span class="appearance__label">Text Size</span>
+                <div class="radio-list" role="radiogroup" aria-label="Text size">
+                  <label><input type="radio" name="textSize" value="small"> Small</label>
+                  <label><input type="radio" name="textSize" value="standard" checked> Standard</label>
+                  <label><input type="radio" name="textSize" value="large"> Large</label>
+                </div>
+              </div>
+              <div class="appearance__group">
+                <span class="appearance__label">Width</span>
+                <div class="radio-list" role="radiogroup" aria-label="Width">
+                  <label><input type="radio" name="width" value="standard" checked> Standard</label>
+                  <label><input type="radio" name="width" value="wide"> Wide</label>
+                </div>
+              </div>
+              <div class="appearance__group">
+                <span class="appearance__label">Color</span>
+                <div class="radio-list" role="radiogroup" aria-label="Color theme">
+                  <label><input type="radio" name="theme" value="automatic"> Automatic</label>
+                  <label><input type="radio" name="theme" value="light" checked> Light</label>
+                  <label><input type="radio" name="theme" value="dark"> Dark</label>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const tocPanel = document.getElementById('toc-panel');
+      const tocToggle = document.getElementById('toc-toggle');
+      const appearancePanel = document.getElementById('appearance-panel');
+      const appearanceToggle = document.getElementById('appearance-toggle');
+      const sections = Array.from(document.querySelectorAll('[data-section]'));
+      const tocLinks = Array.from(document.querySelectorAll('.toc a'));
+      const storageKeys = {
+        textSize: 'krish-textSize',
+        width: 'krish-width',
+        theme: 'krish-colorTheme'
+      };
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+      function readSetting(key, fallback) {
+        return localStorage.getItem(key) || fallback;
+      }
+
+      function setTextSize(value) {
+        root.dataset.textSize = value;
+        localStorage.setItem(storageKeys.textSize, value);
+        document.querySelectorAll('input[name="textSize"]').forEach(input => {
+          input.checked = input.value === value;
+        });
+      }
+
+      function setWidth(value) {
+        root.dataset.width = value;
+        localStorage.setItem(storageKeys.width, value);
+        document.querySelectorAll('input[name="width"]').forEach(input => {
+          input.checked = input.value === value;
+        });
+      }
+
+      function applyTheme(value) {
+        const resolved = value === 'automatic' ? (systemDark.matches ? 'dark' : 'light') : value;
+        root.dataset.theme = resolved;
+        localStorage.setItem(storageKeys.theme, value);
+        document.querySelectorAll('input[name="theme"]').forEach(input => {
+          input.checked = input.value === value;
+        });
+      }
+
+      setTextSize(readSetting(storageKeys.textSize, 'standard'));
+      setWidth(readSetting(storageKeys.width, 'standard'));
+      applyTheme(readSetting(storageKeys.theme, 'light'));
+
+      document.querySelectorAll('input[name="textSize"]').forEach(input => {
+        input.addEventListener('change', () => input.checked && setTextSize(input.value));
+      });
+
+      document.querySelectorAll('input[name="width"]').forEach(input => {
+        input.addEventListener('change', () => input.checked && setWidth(input.value));
+      });
+
+      document.querySelectorAll('input[name="theme"]').forEach(input => {
+        input.addEventListener('change', () => input.checked && applyTheme(input.value));
+      });
+
+      systemDark.addEventListener('change', () => {
+        if (localStorage.getItem(storageKeys.theme) === 'automatic') {
+          applyTheme('automatic');
+        }
+      });
+
+      function togglePanel(panel, button, className) {
+        const collapsed = panel.classList.toggle(className);
+        button.setAttribute('aria-expanded', String(!collapsed));
+        button.textContent = collapsed ? 'show' : 'hide';
+      }
+
+      tocToggle.addEventListener('click', () => togglePanel(tocPanel, tocToggle, 'toc-collapsed'));
+      appearanceToggle.addEventListener('click', () => togglePanel(appearancePanel, appearanceToggle, 'appearance-collapsed'));
+
+      const observer = new IntersectionObserver(entries => {
+        const activeEntry = entries.filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!activeEntry) return;
+        const activeId = activeEntry.target.id;
+        tocLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === `#${activeId}`);
+        });
+      }, { rootMargin: '-30% 0px -60% 0px', threshold: [0.1, 0.2, 0.3, 0.4, 0.5] });
+
+      sections.forEach(section => observer.observe(section));
+
+      if (window.innerWidth < 768) {
+        tocPanel.classList.add('toc-collapsed');
+        tocToggle.textContent = 'show';
+        tocToggle.setAttribute('aria-expanded', 'false');
+        appearancePanel.classList.add('appearance-collapsed');
+        appearanceToggle.textContent = 'show';
+        appearanceToggle.setAttribute('aria-expanded', 'false');
+      }
+
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', event => {
+          const targetId = anchor.getAttribute('href').slice(1);
+          const target = document.getElementById(targetId);
+          if (!target) return;
+          event.preventDefault();
+          target.scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+            block: 'start'
+          });
+          history.replaceState(null, '', `#${targetId}`);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
